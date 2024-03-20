@@ -1,79 +1,68 @@
+# game_ui.py
 import tkinter as tk
 from tkinter import scrolledtext
 
-root = tk.Tk()
-root.title("Text and Controls Layout")
-root.geometry("850x550")
+class GameUI:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Text-Based RPG Game")
+        self.root.geometry("850x550")
 
-# Top left title
-health_label = tk.Label(root, text="Health: 0", font=("Arial", 10))
-health_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
-gold_label = tk.Label(root, text="Gold: 0", font=("Arial", 10))
-gold_label.grid(row=0, column=0, padx=10, pady=35, sticky="nw")
-lvl_label = tk.Label(root, text="Lvl: 0", font=("Arial", 10))
-lvl_label.grid(row=0, column=0, padx=10, pady=60, sticky="nw")
+        self.health = tk.StringVar()
+        self.gold = tk.StringVar()
+        self.lvl = tk.StringVar()
+        
+        # Starting values
+        self.health.set(f"Health: {100}")
+        self.gold.set(f"Gold: {0}")
+        self.lvl.set(f"Lvl: {1}")
 
-# Top right rich-text box
-top_right_text = scrolledtext.ScrolledText(root, width=40, height=10, wrap=tk.WORD)
-top_right_text.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        # Top left Text Labels 
+        self.health_label = tk.Label(self.root, textvariable=self.health, font=("Arial", 10))
+        self.health_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+        self.gold_label = tk.Label(self.root, textvariable=self.gold, font=("Arial", 10))
+        self.gold_label.grid(row=0, column=0, padx=10, pady=35, sticky="nw")
+        self.lvl_label = tk.Label(self.root, textvariable=self.lvl, font=("Arial", 10))
+        self.lvl_label.grid(row=0, column=0, padx=10, pady=60, sticky="nw")
 
-# Middle right rich-text box
-middle_right_text = scrolledtext.ScrolledText(root, width=40, height=20, wrap=tk.WORD)
-middle_right_text.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        # Top right rich-text box
+        self.top_right_text = scrolledtext.ScrolledText(self.root, width=40, height=10, wrap=tk.WORD)
+        self.top_right_text.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-# Bottom left 2x2 grid
-bottom_left_frame = tk.Frame(root)
-bottom_left_frame.grid(row=1, column=0, padx=10, pady=10, sticky="sw")
+        # Middle right rich-text box
+        self.middle_right_text = scrolledtext.ScrolledText(self.root, width=40, height=20, wrap=tk.WORD)
+        self.middle_right_text.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
 
-button1 = tk.Button(bottom_left_frame, text="Button 1", width=10)
-button1.grid(row=0, column=0, padx=5, pady=5)
+        # Bottom left 2x2 grid
+        self.bottom_left_frame = tk.Frame(self.root)
+        self.bottom_left_frame.grid(row=1, column=0, padx=10, pady=10, sticky="sw")
 
-button2 = tk.Button(bottom_left_frame, text="Button 2", width=10)
-button2.grid(row=0, column=1, padx=5, pady=5)
+        self.button1 = tk.Button(self.bottom_left_frame, text="Button 1", width=10)
+        self.button1.grid(row=0, column=0, padx=5, pady=5)
 
-button3 = tk.Button(bottom_left_frame, text="Button 3", width=10)
-button3.grid(row=1, column=0, padx=5, pady=5)
+        self.button2 = tk.Button(self.bottom_left_frame, text="Button 2", width=10)
+        self.button2.grid(row=0, column=1, padx=5, pady=5)
+        self.button3 = tk.Button(self.bottom_left_frame, text="Button 3", width=10)
+        self.button3.grid(row=1, column=0, padx=5, pady=5)
 
-button4 = tk.Button(bottom_left_frame, text="Button 4", width=10)
-button4.grid(row=1, column=1, padx=5, pady=5)
+        self.button4 = tk.Button(self.bottom_left_frame, text="Button 4", width=10)
+        self.button4.grid(row=1, column=1, padx=5, pady=5)
 
-# Bottom right control buttons
-control_frame = tk.Frame(root)
-control_frame.grid(row=1, column=2, padx=10, pady=10, sticky="se")
+        # Bottom right control buttons
+        self.control_frame = tk.Frame(self.root)
+        self.control_frame.grid(row=1, column=2, padx=10, pady=10, sticky="se")
 
-up_button = tk.Button(control_frame, text="Up", width=10)
-up_button.grid(row=0, column=1, padx=5, pady=5)
+        self.up_button = tk.Button(self.control_frame, text="Up", width=10)
+        self.up_button.grid(row=0, column=1, padx=5, pady=5)
 
-down_button = tk.Button(control_frame, text="Down", width=10)
-down_button.grid(row=2, column=1, padx=5, pady=5)
+        self.down_button = tk.Button(self.control_frame, text="Down", width=10)
+        self.down_button.grid(row=2, column=1, padx=5, pady=5)
 
-left_button = tk.Button(control_frame, text="Left", width=10)
-left_button.grid(row=1, column=0, padx=5, pady=5)
+        self.left_button = tk.Button(self.control_frame, text="Left", width=10)
+        self.left_button.grid(row=1, column=0, padx=5, pady=5)
 
-right_button = tk.Button(control_frame, text="Right", width=10)
-right_button.grid(row=1, column=2, padx=5, pady=5)
+        self.right_button = tk.Button(self.control_frame, text="Right", width=10)
+        self.right_button.grid(row=1, column=2, padx=5, pady=5)
 
-def button1_click():
-    health_label.config(text="Health: 100")
-
-
-def button2_click():
-    gold_label.config(text="Gold: 420")
-
-
-def button3_click():
-    lvl_label.config(text="Lvl: 99")
-
-
-def button4_click():
-    health_label.config(text="Health: 0")
-    gold_label.config(text="Gold: 0")
-    lvl_label.config(text="Lvl: 0")
-
-# Bind the button click event to the function
-button1.config(command=button1_click)
-button2.config(command=button2_click)
-button3.config(command=button3_click)
-button4.config(command=button4_click)
-
-root.mainloop()
+    def start(self):
+        self.root.mainloop()
