@@ -1,6 +1,7 @@
 # game_ui.py
 import tkinter as tk
 from tkinter import scrolledtext
+from player import Player
 
 class GameUI:
     def __init__(self):
@@ -8,22 +9,34 @@ class GameUI:
         self.root.title("Text-Based RPG Game")
         self.root.geometry("850x550")
 
+        # Player Instance
+        _player = Player()
+        _player.currentHitPoints = 100
+        _player.maximumHitPoints = 100
+        _player.gold = 20
+        _player.experiencePoints = 0
+        _player.level = 1
+
         self.health = tk.StringVar()
         self.gold = tk.StringVar()
+        self.experience = tk.StringVar()
         self.lvl = tk.StringVar()
         
         # Starting values
-        self.health.set(f"Health: {100}")
-        self.gold.set(f"Gold: {0}")
-        self.lvl.set(f"Lvl: {1}")
+        self.health.set(f"Health: {_player.currentHitPoints}")
+        self.gold.set(f"Gold: {_player.gold}")
+        self.experience.set(f"Exp: {_player.experiencePoints}")
+        self.lvl.set(f"Lvl: {_player.level}")
 
         # Top left Text Labels 
         self.health_label = tk.Label(self.root, textvariable=self.health, font=("Arial", 10))
         self.health_label.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
         self.gold_label = tk.Label(self.root, textvariable=self.gold, font=("Arial", 10))
         self.gold_label.grid(row=0, column=0, padx=10, pady=35, sticky="nw")
+        self.experience_label = tk.Label(self.root, textvariable=self.experience, font=("Arial", 10))
+        self.experience_label.grid(row=0, column=0, padx=10, pady=60, sticky="nw")
         self.lvl_label = tk.Label(self.root, textvariable=self.lvl, font=("Arial", 10))
-        self.lvl_label.grid(row=0, column=0, padx=10, pady=60, sticky="nw")
+        self.lvl_label.grid(row=0, column=0, padx=10, pady=85, sticky="nw")
 
         # Top right rich-text box
         self.top_right_text = scrolledtext.ScrolledText(self.root, width=40, height=10, wrap=tk.WORD)
