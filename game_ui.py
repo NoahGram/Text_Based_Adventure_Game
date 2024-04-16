@@ -60,16 +60,16 @@ class GameUI:
         self.control_frame = tk.Frame(self.root)
         self.control_frame.grid(row=1, column=2, padx=10, pady=10, sticky="se")
 
-        self.up_button = tk.Button(self.control_frame, text="Up", width=10)
+        self.up_button = tk.Button(self.control_frame, text="North", width=10)
         self.up_button.grid(row=0, column=1, padx=5, pady=5)
 
-        self.down_button = tk.Button(self.control_frame, text="Down", width=10)
+        self.down_button = tk.Button(self.control_frame, text="South", width=10)
         self.down_button.grid(row=2, column=1, padx=5, pady=5)
 
-        self.left_button = tk.Button(self.control_frame, text="Left", width=10)
+        self.left_button = tk.Button(self.control_frame, text="West", width=10)
         self.left_button.grid(row=1, column=0, padx=5, pady=5)
 
-        self.right_button = tk.Button(self.control_frame, text="Right", width=10)
+        self.right_button = tk.Button(self.control_frame, text="East", width=10)
         self.right_button.grid(row=1, column=2, padx=5, pady=5)
 
     def start(self):
