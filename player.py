@@ -6,3 +6,5 @@ class Player(Creature):
         self.gold = gold
         self.experiencePoints = experiencePoints
         self.level = level
+        self.inventory = []
+        self.quests = []
