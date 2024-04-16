@@ -10,12 +10,7 @@ class GameUI:
         self.root.geometry("850x550")
 
         # Player Instance
-        _player = Player()
-        _player.currentHitPoints = 100
-        _player.maximumHitPoints = 100
-        _player.gold = 20
-        _player.experiencePoints = 0
-        _player.level = 1
+        _player = Player(100, 100, 20, 0, 1)
 
         self.health = tk.StringVar()
         self.gold = tk.StringVar()
@@ -23,7 +18,7 @@ class GameUI:
         self.lvl = tk.StringVar()
         
         # Starting values
-        self.health.set(f"Health: {_player.currentHitPoints}")
+        self.health.set(f"Health: {_player.current_hit_points}")
         self.gold.set(f"Gold: {_player.gold}")
         self.experience.set(f"Exp: {_player.experiencePoints}")
         self.lvl.set(f"Lvl: {_player.level}")

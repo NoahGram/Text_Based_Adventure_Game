@@ -1,7 +1,8 @@
-class Player:
-    def __init__(self):
-        self.currentHitPoints = 0
-        self.maximumHitPoints = 0
-        self.gold = 0
-        self.experiencePoints = 0
-        self.level = 0
+from creature import Creature
+
+class Player(Creature):
+    def __init__(self, current_hit_points, maximum_hit_points, gold, experiencePoints, level):
+        super().__init__(current_hit_points, maximum_hit_points)
+        self.gold = gold
+        self.experiencePoints = experiencePoints
+        self.level = level

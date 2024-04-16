@@ -1,7 +1,7 @@
-class Weapon:
-    def __init__(self):
-        self.id = None
-        self.name = None
-        self.name_plural = None
-        self.minimum_damage = None
-        self.maximum_damage = None
+from item import Item
+
+class Weapon(Item):
+    def __init__(self, id, name, name_plural, minimum_damage, maximum_damage):
+        super().__init__(id, name, name_plural)
+        self.minimum_damage = minimum_damage
+        self.maximum_damage = maximum_damage
