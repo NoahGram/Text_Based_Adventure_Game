@@ -1,6 +1,6 @@
 # game_ui.py
 import tkinter as tk
-from tkinter import scrolledtext
+from tkinter import scrolledtext, ttk
 from player import Player
 
 class GameUI:
@@ -56,21 +56,40 @@ class GameUI:
         self.button4 = tk.Button(self.bottom_left_frame, text="Button 4", width=10)
         self.button4.grid(row=1, column=1, padx=5, pady=5)
 
-        # Bottom right control buttons
+        # Top right control buttons
         self.control_frame = tk.Frame(self.root)
-        self.control_frame.grid(row=1, column=2, padx=10, pady=10, sticky="se")
+        self.control_frame.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
 
-        self.up_button = tk.Button(self.control_frame, text="North", width=10)
-        self.up_button.grid(row=0, column=1, padx=5, pady=5)
+        self.north_button = tk.Button(self.control_frame, text="North", width=10)
+        self.north_button.grid(row=0, column=1, padx=5, pady=5)
 
-        self.down_button = tk.Button(self.control_frame, text="South", width=10)
-        self.down_button.grid(row=2, column=1, padx=5, pady=5)
+        self.south_button = tk.Button(self.control_frame, text="South", width=10)
+        self.south_button.grid(row=2, column=1, padx=5, pady=5)
 
-        self.left_button = tk.Button(self.control_frame, text="West", width=10)
-        self.left_button.grid(row=1, column=0, padx=5, pady=5)
+        self.west_button = tk.Button(self.control_frame, text="West", width=10)
+        self.west_button.grid(row=1, column=0, padx=5, pady=5)
 
-        self.right_button = tk.Button(self.control_frame, text="East", width=10)
-        self.right_button.grid(row=1, column=2, padx=5, pady=5)
+        self.east_button = tk.Button(self.control_frame, text="East", width=10)
+        self.east_button.grid(row=1, column=2, padx=5, pady=5)
 
+        # Dropdowns
+        self.dropdown_frame = tk.Frame(self.root)
+        self.dropdown_frame.grid(row=1, column=2, padx=10, pady=10, sticky="ne")
+
+        self.action_label = tk.Label(self.dropdown_frame, text="Select Action", font=("Arial", 10))
+        self.action_label.grid(row=0, column=0, padx=5, pady=5, columnspan=2)
+
+        self.use_attack = tk.Button(self.dropdown_frame, text="Use", width=10)
+        self.use_attack.grid(row=1, column=0, padx=5, pady=5)
+
+        self.action_attack = ttk.Combobox(self.dropdown_frame)
+        self.action_attack.grid(row=1, column=1, padx=5, pady=5)
+
+        self.use_potion = tk.Button(self.dropdown_frame, text="Use", width=10)
+        self.use_potion.grid(row=3, column=0, padx=5, pady=5)
+
+        self.action_potion = ttk.Combobox(self.dropdown_frame)
+        self.action_potion.grid(row=3, column=1, padx=5, pady=5)
+    
     def start(self):
         self.root.mainloop()
