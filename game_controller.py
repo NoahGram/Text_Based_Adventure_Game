@@ -1,8 +1,10 @@
 from game_ui import GameUI
+from super_adventure import SuperAdventure
 
 class GameController:
     def __init__(self):
-        self.ui = GameUI()
+        self.game = SuperAdventure()
+        self.ui = GameUI(self.game)
 
         # Bind the button click event to the function
         self.ui.button1.config(command=lambda: self.button1_click())
@@ -11,27 +13,20 @@ class GameController:
         self.ui.button4.config(command=lambda: self.button4_click())
 
     def button1_click(self):
-        current_text = self.ui.health.get()
-        current_value = int(current_text.split(": ")[1])
-        current_value += 1
-        self.ui.health.set(f"Health: {current_value}")
+        self.game.increase_health()
+        self.ui.update_ui()
 
     def button2_click(self):
-        current_text = self.ui.gold.get()
-        current_value = int(current_text.split(": ")[1])
-        current_value += 1
-        self.ui.gold.set(f"Gold: {current_value}")
+        self.game.increase_gold()
+        self.ui.update_ui()
 
     def button3_click(self):
-        current_text = self.ui.lvl.get()
-        current_value = int(current_text.split(": ")[1])
-        current_value += 1
-        self.ui.lvl.set(f"Lvl: {current_value}")
+        self.game.increase_level()
+        self.ui.update_ui()
 
     def button4_click(self):
-        self.ui.health.set(f"Health: {100}")
-        self.ui.gold.set(f"Gold: {0}")
-        self.ui.lvl.set(f"Lvl: {1}")
+        self.game.reset()
+        self.ui.update_ui()
 
     def start(self):
         self.ui.start()

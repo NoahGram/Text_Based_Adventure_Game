@@ -1,5 +1,5 @@
 class Location:
-    def __init__(self, id, name, description, item_required_to_enter=None, quest_available_here=None, monster=None):
+    def __init__(self, id, name, description, item_required_to_enter, quest_available_here, monster):
         self.id = id
         self.name = name
         self.description = description

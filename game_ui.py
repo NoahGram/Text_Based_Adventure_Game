@@ -4,13 +4,14 @@ from tkinter import scrolledtext, ttk
 from player import Player
 
 class GameUI:
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game
         self.root = tk.Tk()
         self.root.title("Text-Based RPG Game")
         self.root.geometry("850x550")
 
         # Player Instance
-        _player = Player(100, 100, 20, 0, 1)
+        self._player = self.game.player
 
         self.health = tk.StringVar()
         self.gold = tk.StringVar()
@@ -18,10 +19,7 @@ class GameUI:
         self.lvl = tk.StringVar()
         
         # Starting values
-        self.health.set(f"Health: {_player.current_hit_points}")
-        self.gold.set(f"Gold: {_player.gold}")
-        self.experience.set(f"Exp: {_player.experiencePoints}")
-        self.lvl.set(f"Lvl: {_player.level}")
+        self.update_stats()
 
         # Top left Text Labels 
         self.health_label = tk.Label(self.root, textvariable=self.health, font=("Arial", 10))
@@ -90,6 +88,97 @@ class GameUI:
 
         self.action_potion = ttk.Combobox(self.dropdown_frame)
         self.action_potion.grid(row=3, column=1, padx=5, pady=5)
+
+    def update_stats(self):
+        self.health.set(f"Health: {self._player.current_hit_points}")
+        self.gold.set(f"Gold: {self._player.gold}")
+        self.experience.set(f"Exp: {self._player.experiencePoints}")
+        self.lvl.set(f"Lvl: {self._player.level}")
     
+    def move_to(self, new_location):
+            # Check if the player has the required items to enter the new location
+            if new_location.required_item is not None:
+                if not self._player.has_required_item(new_location.required_item):
+                    self.top_right_text.insert(tk.END, f"You must have {new_location.required_item.name} to enter this location.\n")
+                    return
+
+            # Update the player's current location
+            self._player.current_location = new_location
+
+            # Check if there's a quest at the new location
+            if new_location.quest is not None:
+                if not self._player.has_quest(new_location.quest):
+                    self._player.add_quest(new_location.quest)
+                    self.top_right_text.insert(tk.END, f"You receive a new quest: {new_location.quest.name}.\n")
+
+            # Check if there's a monster at the new location
+            if new_location.monster is not None:
+                self._current_monster = new_location.monster
+                self.top_right_text.insert(tk.END, f"A {self._current_monster.name} has appeared!\n")
+
+            # Update the UI
+            self.update_ui()
+
+    def use_weapon(self):
+        # Get the currently selected weapon from the action_attack Combobox
+        current_weapon = self.action_attack.get()
+
+        # Calculate the amount of damage to do to the monster
+        damage_to_monster = random.randint(current_weapon.minimum_damage, current_weapon.maximum_damage)
+
+        # Apply the damage to the monster's current hit points
+        self._current_monster.current_hit_points -= damage_to_monster
+
+        # Display message
+        self.top_right_text.insert(tk.END, f"You hit the {self._current_monster.name} for {damage_to_monster} points.\n")
+
+        # Check if the monster is dead
+        if self._current_monster.current_hit_points <= 0:
+            # Monster is dead
+            self.top_right_text.insert(tk.END, f"You defeated the {self._current_monster.name}.\n")
+
+            # TODO: Give player experience points for killing the monster
+
+    def use_potion(self):
+        # Get the currently selected potion from the action_potion Combobox
+        potion = self.action_potion.get()
+
+        # Increase player's current hit points, but not beyond their maximum hit points
+        self._player.current_hit_points = min(self._player.current_hit_points + potion.amount_to_heal, self._player.maximum_hit_points)
+
+        # Remove the potion from the player's inventory
+        self._player.inventory.remove(potion)
+
+        # Display message
+        self.top_right_text.insert(tk.END, f"You drink a {potion.name}.\n")
+
+    def update_ui(self):
+        # Update the player's stats
+        self.player_stats_text.set(f"HP: {self.player.hp} XP: {self.player.xp} Level: {self.player.level}")
+
+        # Update the player's inventory
+        self.inventory_list.delete(0, tk.END)
+        for item in self.player.inventory:
+            self.inventory_list.insert(tk.END, item)
+
+        # Update the player's location
+        self.location_text.set(self.player.location)
+
+    def north_button_click(self):
+        # Move the player to the north
+        self.player.move_north()
+
+    def east_button_click(self):
+        # Move the player to the east
+        self.player.move_east()
+
+    def south_button_click(self):
+        # Move the player to the south
+        self.player.move_south()
+
+    def west_button_click(self):
+        # Move the player to the west
+        self.player.move_west()
+
     def start(self):
         self.root.mainloop()

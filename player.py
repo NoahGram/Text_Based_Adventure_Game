@@ -8,3 +8,4 @@ class Player(Creature):
         self.level = level
         self.inventory = []
         self.quests = []
+        self.current_location = 1
