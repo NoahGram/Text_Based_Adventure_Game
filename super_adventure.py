@@ -1,16 +1,18 @@
 # SuperAdventure.py
+from game_ui import GameUI
 from monster import Monster
 from player import Player
 from potion import Potion
 from weapon import Weapon
 from world import World
 from inventory_item import InventoryItem
+from game_ui import GameUI
 
 class SuperAdventure:
     def __init__(self):
         World.__init__()
-        self.move_to(World.location_by_id(World.LOCATION_ID_HOME))
         self._player = Player(10, 10, 20, 0, 1)
+        self.game_ui = GameUI(self)
         self.move_to(World.location_by_id(World.LOCATION_ID_HOME))
         self._player.inventory.append(InventoryItem(World.item_by_id(World.ITEM_ID_RUSTY_SWORD), 1))
 
@@ -32,18 +34,23 @@ class SuperAdventure:
         self.move_to(self._player.current_location.location_to_west)
 
     def move_to(self, new_location):
-        if new_location is not None and new_location.item_required_to_enter is not None:
-            player_has_required_item = any(ii.details.id == new_location.item_required_to_enter.id for ii in self._player.inventory)
-            if not player_has_required_item:
-                self.rtbMessages += f"You must have a {new_location.item_required_to_enter.name} to enter this location.\n"
+        # Check if the player has the required items to enter the new location
+        if new_location.item_required_to_enter is not None:
+            if not self._player.has_required_item(new_location.item_required_to_enter):
+                self.top_right_text.insert(tk.END, f"You must have {new_location.item_required_to_enter.name} to enter this location.\n")
                 return
 
+        # Update the player's current location
         self._player.current_location = new_location
 
-        self.btnNorth.visible = new_location.location_to_north is not None
-        self.btnEast.visible = new_location.location_to_east is not None
-        self.btnSouth.visible = new_location.location_to_south is not None
-        self.btnWest.visible = new_location.location_to_west is not None
+        # Update the state of the buttons
+        self.game_ui.update_buttons(new_location)  # Assuming game_ui is an instance of the GameUI class
+
+        # Update the visibility of the buttons based on the new location
+        self.btnNorth_Click['state'] = 'normal' if new_location.LocationToNorth is not None else 'disabled'
+        self.btnSouth_Click['state'] = 'normal' if new_location.LocationToSouth is not None else 'disabled'
+        self.btnWest_Click['state'] = 'normal' if new_location.LocationToWest is not None else 'disabled'
+        self.btnEast_Click['state'] = 'normal' if new_location.LocationToEast is not None else 'disabled'
 
         self.rtbLocation = f"{new_location.name}\n{new_location.description}\n"
 
@@ -183,17 +190,17 @@ class SuperAdventure:
         pass
 
     def increase_health(self):
-        self.player.current_hit_points += 1
+        self._player.current_hit_points += 1
         # Add the indented block of code here
 
     def increase_gold(self):
-        self.player.gold += 1
+        self._player.gold += 1
         # Add the indented block of code here
 
     def increase_level(self):
-        self.player.level += 1
+        self._player.level += 1
 
     def reset(self):
-        self.player.current_hit_points = 100
-        self.player.gold = 0
-        self.player.level = 1
+        self._player.current_hit_points = 100
+        self._player.gold = 0
+        self._player.level = 1

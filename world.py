@@ -64,16 +64,16 @@ class World:
     @staticmethod
     def populate_monsters():
         rat = Monster(World.MONSTER_ID_RAT, "Rat", 5, 3, 10, 3, 3)
-        rat.LootTable.append(LootItem(World.item_by_id(World.ITEM_ID_RAT_TAIL), 75, False))
-        rat.LootTable.append(LootItem(World.item_by_id(World.ITEM_ID_PIECE_OF_FUR), 75, True))
+        rat.loot_table.append(LootItem(World.item_by_id(World.ITEM_ID_RAT_TAIL), 75, False))
+        rat.loot_table.append(LootItem(World.item_by_id(World.ITEM_ID_PIECE_OF_FUR), 75, True))
 
         snake = Monster(World.MONSTER_ID_SNAKE, "Snake", 5, 3, 10, 3, 3)
-        snake.LootTable.append(LootItem(World.item_by_id(World.ITEM_ID_SNAKE_FANG), 75, False))
-        snake.LootTable.append(LootItem(World.item_by_id(World.ITEM_ID_SNAKESKIN), 75, True))
+        snake.loot_table.append(LootItem(World.item_by_id(World.ITEM_ID_SNAKE_FANG), 75, False))
+        snake.loot_table.append(LootItem(World.item_by_id(World.ITEM_ID_SNAKESKIN), 75, True))
 
         giantSpider = Monster(World.MONSTER_ID_GIANT_SPIDER, "Giant spider", 20, 5, 40, 10, 10)
-        giantSpider.LootTable.append(LootItem(World.item_by_id(World.ITEM_ID_SPIDER_FANG), 75, True))
-        giantSpider.LootTable.append(LootItem(World.item_by_id(World.ITEM_ID_SPIDER_SILK), 25, False))
+        giantSpider.loot_table.append(LootItem(World.item_by_id(World.ITEM_ID_SPIDER_FANG), 75, True))
+        giantSpider.loot_table.append(LootItem(World.item_by_id(World.ITEM_ID_SPIDER_SILK), 25, False))
 
         World.Monsters.append(rat)
         World.Monsters.append(snake)
@@ -81,41 +81,111 @@ class World:
 
     @staticmethod
     def populate_quests():
-        clearAlchemistGarden = Quest(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN, "Clear the alchemist's garden", "Kill rats in the alchemist's garden and bring back 3 rat tails. You will receive a healing potion and 10 gold pieces.", 20, 10)
-        clearAlchemistGarden.QuestCompletionItems.append(QuestCompletionItem(World.item_by_id(World.ITEM_ID_RAT_TAIL), 3))
-        clearAlchemistGarden.RewardItem = World.item_by_id(World.ITEM_ID_HEALING_POTION)
+        clearAlchemistGarden = Quest(
+            World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN, 
+            "Clear the alchemist's garden", 
+            "Kill rats in the alchemist's garden and bring back 3 rat tails. You will receive a healing potion and 10 gold pieces.", 
+            20, 
+            10,
+            World.item_by_id(World.ITEM_ID_HEALING_POTION),  # item_reward
+            [QuestCompletionItem(World.item_by_id(World.ITEM_ID_RAT_TAIL), 3)]  # quest_completed_items
+        )
 
-        clearFarmersField = Quest(World.QUEST_ID_CLEAR_FARMERS_FIELD, "Clear the farmer's field", "Kill snakes in the farmer's field and bring back 3 snake fangs. You will receive an adventurer's pass and 20 gold pieces.", 20, 20)
-        clearFarmersField.QuestCompletionItems.append(QuestCompletionItem(World.item_by_id(World.ITEM_ID_SNAKE_FANG), 3))
-        clearFarmersField.RewardItem = World.item_by_id(World.ITEM_ID_ADVENTURER_PASS)
+        clearFarmersField = Quest(
+            World.QUEST_ID_CLEAR_FARMERS_FIELD, 
+            "Clear the farmer's field", 
+            "Kill snakes in the farmer's field and bring back 3 snake fangs. You will receive an adventurer's pass and 20 gold pieces.", 
+            20, 
+            20,
+            World.item_by_id(World.ITEM_ID_ADVENTURER_PASS),  # item_reward
+            [QuestCompletionItem(World.item_by_id(World.ITEM_ID_SNAKE_FANG), 3)]  # quest_completed_items
+        )
 
         World.Quests.append(clearAlchemistGarden)
         World.Quests.append(clearFarmersField)
 
     @staticmethod
     def populate_locations():
-        home = Location(World.LOCATION_ID_HOME, "Home", "Your house. You really need to clean up the place.")
+        home = Location(
+            World.LOCATION_ID_HOME, 
+            "Home", 
+            "Your house. You really need to clean up the place.",
+            None,  # item_required_to_enter
+            None,  # quest_available_here
+            None   # monster
+        )
 
-        townSquare = Location(World.LOCATION_ID_TOWN_SQUARE, "Town square", "You see a fountain.")
+        townSquare = Location(
+            World.LOCATION_ID_TOWN_SQUARE, 
+            "Town square", 
+            "You see a fountain.",
+            None,
+            None,
+            None
+        )
 
-        alchemistHut = Location(World.LOCATION_ID_ALCHEMIST_HUT, "Alchemist's hut", "There are many strange plants on the shelves.")
-        alchemistHut.QuestAvailableHere = World.quest_by_id(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN)
+        alchemistHut = Location(
+            World.LOCATION_ID_ALCHEMIST_HUT, 
+            "Alchemist's hut", 
+            "There are many strange plants on the shelves.",
+            None,  # item_required_to_enter
+            World.quest_by_id(World.QUEST_ID_CLEAR_ALCHEMIST_GARDEN),  # quest_available_here
+            None   # monster
+        )
 
-        alchemistsGarden = Location(World.LOCATION_ID_ALCHEMISTS_GARDEN, "Alchemist's garden", "Many plants are growing here.")
-        alchemistsGarden.MonsterLivingHere = World.monster_by_id(World.MONSTER_ID_RAT)
+        alchemistsGarden = Location(
+            World.LOCATION_ID_ALCHEMISTS_GARDEN, 
+            "Alchemist's garden", 
+            "Many plants are growing here.",
+            None,
+            None,
+            World.monster_by_id(World.MONSTER_ID_RAT)
+        )
 
-        farmhouse = Location(World.LOCATION_ID_FARMHOUSE, "Farmhouse", "There is a small farmhouse, with a farmer in front.")
-        farmhouse.QuestAvailableHere = World.quest_by_id(World.QUEST_ID_CLEAR_FARMERS_FIELD)
+        farmhouse = Location(
+            World.LOCATION_ID_FARMHOUSE, 
+            "Farmhouse", 
+            "There is a small farmhouse, with a farmer in front.",
+            None,
+            World.quest_by_id(World.QUEST_ID_CLEAR_FARMERS_FIELD),
+            None
+        )
 
-        farmersField = Location(World.LOCATION_ID_FARM_FIELD, "Farmer's field", "You see rows of vegetables growing here.")
-        farmersField.MonsterLivingHere = World.monster_by_id(World.MONSTER_ID_SNAKE)
+        farmersField = Location(
+            World.LOCATION_ID_FARM_FIELD, 
+            "Farmer's field", 
+            "You see rows of vegetables growing here.",
+            None,  # item_required_to_enter
+            None,  # quest_available_here
+            World.monster_by_id(World.MONSTER_ID_SNAKE)  # monster
+        )
 
-        guardPost = Location(World.LOCATION_ID_GUARD_POST, "Guard post", "There is a large, tough-looking guard here.", World.item_by_id(World.ITEM_ID_ADVENTURER_PASS))
+        guardPost = Location(
+            World.LOCATION_ID_GUARD_POST, 
+            "Guard post", 
+            "There is a large, tough-looking guard here.", 
+            World.item_by_id(World.ITEM_ID_ADVENTURER_PASS),
+            None,
+            None
+        )
 
-        bridge = Location(World.LOCATION_ID_BRIDGE, "Bridge", "A stone bridge crosses a wide river.")
+        bridge = Location(
+            World.LOCATION_ID_BRIDGE, 
+            "Bridge", 
+            "A stone bridge crosses a wide river.",
+            None,
+            None,
+            None
+        )
 
-        spiderField = Location(World.LOCATION_ID_SPIDER_FIELD, "Forest", "You see spider webs covering covering the trees in this forest.")
-        spiderField.MonsterLivingHere = World.monster_by_id(World.MONSTER_ID_GIANT_SPIDER)
+        spiderField = Location(
+            World.LOCATION_ID_SPIDER_FIELD, 
+            "Forest", 
+            "You see spider webs covering covering the trees in this forest.",
+            None,
+            None,
+            World.monster_by_id(World.MONSTER_ID_GIANT_SPIDER)
+        )
 
         home.LocationToNorth = townSquare
 
@@ -155,27 +225,27 @@ class World:
     @staticmethod
     def item_by_id(id):
         for item in World.Items:
-            if item.ID == id:
+            if item.id == id:
                 return item
         return None
 
     @staticmethod
     def monster_by_id(id):
         for monster in World.Monsters:
-            if monster.ID == id:
+            if monster.id == id:
                 return monster
         return None
 
     @staticmethod
     def quest_by_id(id):
         for quest in World.Quests:
-            if quest.ID == id:
+            if quest.id == id:
                 return quest
         return None
 
     @staticmethod
     def location_by_id(id):
         for location in World.Locations:
-            if location.ID == id:
+            if location.id == id:
                 return location
         return None

@@ -5,13 +5,14 @@ from player import Player
 
 class GameUI:
     def __init__(self, game):
-        self.game = game
+        from super_adventure import SuperAdventure
+        self.SuperAdventure = SuperAdventure
         self.root = tk.Tk()
         self.root.title("Text-Based RPG Game")
         self.root.geometry("850x550")
 
         # Player Instance
-        self._player = self.game.player
+        self._player = self.SuperAdventure._player
 
         self.health = tk.StringVar()
         self.gold = tk.StringVar()
@@ -58,16 +59,16 @@ class GameUI:
         self.control_frame = tk.Frame(self.root)
         self.control_frame.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
 
-        self.north_button = tk.Button(self.control_frame, text="North", width=10)
+        self.north_button = tk.Button(self.control_frame, text="North", width=10, command=self.super_adventure.btnNorth_Click)
         self.north_button.grid(row=0, column=1, padx=5, pady=5)
 
-        self.south_button = tk.Button(self.control_frame, text="South", width=10)
+        self.south_button = tk.Button(self.control_frame, text="South", width=10, command=self.super_adventure.btnSouth_Click)
         self.south_button.grid(row=2, column=1, padx=5, pady=5)
 
-        self.west_button = tk.Button(self.control_frame, text="West", width=10)
+        self.west_button = tk.Button(self.control_frame, text="West", width=10, command=self.super_adventure.btnWest_Click)
         self.west_button.grid(row=1, column=0, padx=5, pady=5)
 
-        self.east_button = tk.Button(self.control_frame, text="East", width=10)
+        self.east_button = tk.Button(self.control_frame, text="East", width=10, command=self.super_adventure.btnEast_Click)
         self.east_button.grid(row=1, column=2, padx=5, pady=5)
 
         # Dropdowns
@@ -89,35 +90,57 @@ class GameUI:
         self.action_potion = ttk.Combobox(self.dropdown_frame)
         self.action_potion.grid(row=3, column=1, padx=5, pady=5)
 
+        # Connect the button click events to the movement methods in the SuperAdventure class
+        self.north_button = tk.Button(self.control_frame, text="North", width=10, command=self.super_adventure.btnNorth_Click)
+        self.north_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.south_button = tk.Button(self.control_frame, text="South", width=10, command=self.super_adventure.btnSouth_Click)
+        self.south_button.grid(row=2, column=1, padx=5, pady=5)
+
+        self.west_button = tk.Button(self.control_frame, text="West", width=10, command=self.super_adventure.btnWest_Click)
+        self.west_button.grid(row=1, column=0, padx=5, pady=5)
+
+        self.east_button = tk.Button(self.control_frame, text="East", width=10, command=self.super_adventure.btnEast_Click)
+        self.east_button.grid(row=1, column=2, padx=5, pady=5)
+
     def update_stats(self):
         self.health.set(f"Health: {self._player.current_hit_points}")
         self.gold.set(f"Gold: {self._player.gold}")
         self.experience.set(f"Exp: {self._player.experiencePoints}")
         self.lvl.set(f"Lvl: {self._player.level}")
+
+    def update_buttons(self, new_location):
+        self.north_button['state'] = 'normal' if new_location.location_to_north is not None else 'disabled'
+        self.south_button['state'] = 'normal' if new_location.location_to_south is not None else 'disabled'
+        self.west_button['state'] = 'normal' if new_location.location_to_west is not None else 'disabled'
+        self.east_button['state'] = 'normal' if new_location.location_to_east is not None else 'disabled'
     
     def move_to(self, new_location):
-            # Check if the player has the required items to enter the new location
-            if new_location.required_item is not None:
-                if not self._player.has_required_item(new_location.required_item):
-                    self.top_right_text.insert(tk.END, f"You must have {new_location.required_item.name} to enter this location.\n")
-                    return
+        # Check if the player has the required items to enter the new location
+        if new_location.item_required_to_enter is not None:
+            if not self._player.has_required_item(new_location.item_required_to_enter):
+                self.top_right_text.insert(tk.END, f"You must have {new_location.item_required_to_enter.name} to enter this location.\n")
+                return
 
-            # Update the player's current location
-            self._player.current_location = new_location
+        # Update the player's current location
+        self._player.current_location = new_location
 
-            # Check if there's a quest at the new location
-            if new_location.quest is not None:
-                if not self._player.has_quest(new_location.quest):
-                    self._player.add_quest(new_location.quest)
-                    self.top_right_text.insert(tk.END, f"You receive a new quest: {new_location.quest.name}.\n")
+        # Update the state of the buttons
+        self.game_ui.update_buttons(new_location)
 
-            # Check if there's a monster at the new location
-            if new_location.monster is not None:
-                self._current_monster = new_location.monster
-                self.top_right_text.insert(tk.END, f"A {self._current_monster.name} has appeared!\n")
+        # Check if there's a quest at the new location
+        if new_location.quest is not None:
+            if not self._player.has_quest(new_location.quest):
+                self._player.add_quest(new_location.quest)
+                self.top_right_text.insert(tk.END, f"You receive a new quest: {new_location.quest.name}.\n")
 
-            # Update the UI
-            self.update_ui()
+        # Check if there's a monster at the new location
+        if new_location.monster is not None:
+            self._current_monster = new_location.monster
+            self.top_right_text.insert(tk.END, f"A {self._current_monster.name} has appeared!\n")
+
+        # Update the UI
+        self.update_ui()
 
     def use_weapon(self):
         # Get the currently selected weapon from the action_attack Combobox
@@ -154,31 +177,31 @@ class GameUI:
 
     def update_ui(self):
         # Update the player's stats
-        self.player_stats_text.set(f"HP: {self.player.hp} XP: {self.player.xp} Level: {self.player.level}")
+        self._player_stats_text.set(f"HP: {self._player.hp} XP: {self._player.xp} Level: {self._player.level}")
 
         # Update the player's inventory
         self.inventory_list.delete(0, tk.END)
-        for item in self.player.inventory:
+        for item in self._player.inventory:
             self.inventory_list.insert(tk.END, item)
 
         # Update the player's location
-        self.location_text.set(self.player.location)
+        self.location_text.set(self._player.location)
 
     def north_button_click(self):
         # Move the player to the north
-        self.player.move_north()
+        self._player.move_north()
 
     def east_button_click(self):
         # Move the player to the east
-        self.player.move_east()
+        self._player.move_east()
 
     def south_button_click(self):
         # Move the player to the south
-        self.player.move_south()
+        self._player.move_south()
 
     def west_button_click(self):
         # Move the player to the west
-        self.player.move_west()
+        self._player.move_west()
 
     def start(self):
         self.root.mainloop()
