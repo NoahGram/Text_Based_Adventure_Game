@@ -2,17 +2,18 @@
 import tkinter as tk
 from tkinter import scrolledtext, ttk
 from player import Player
+from weapon import Weapon
 
 class GameUI:
-    def __init__(self, game):
-        from super_adventure import SuperAdventure
-        self.SuperAdventure = SuperAdventure
+    def __init__(self, super_adventure):
+
         self.root = tk.Tk()
         self.root.title("Text-Based RPG Game")
         self.root.geometry("850x550")
 
         # Player Instance
-        self._player = self.SuperAdventure._player
+        self.super_adventure = super_adventure
+        self._player = self.super_adventure._player
 
         self.health = tk.StringVar()
         self.gold = tk.StringVar()
@@ -39,6 +40,10 @@ class GameUI:
         # Middle right rich-text box
         self.middle_right_text = scrolledtext.ScrolledText(self.root, width=40, height=20, wrap=tk.WORD)
         self.middle_right_text.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+
+        # Lower right rich-text box for quests
+        self.lower_right_text_quests = scrolledtext.ScrolledText(self.root, width=40, height=30, wrap=tk.WORD)
+        self.lower_right_text_quests.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
         # Bottom left 2x2 grid
         self.bottom_left_frame = tk.Frame(self.root)
@@ -90,6 +95,15 @@ class GameUI:
         self.action_potion = ttk.Combobox(self.dropdown_frame)
         self.action_potion.grid(row=3, column=1, padx=5, pady=5)
 
+        # Create the weapons combobox
+        self.cbo_weapons = ttk.Combobox(self.dropdown_frame)
+        self.cbo_weapons.grid(column=0, row=0)
+
+        # Get the player's weapons
+        weapons = [item for item in self._player.inventory if isinstance(item, Weapon)]
+
+        # Update the weapons combobox
+        self.cbo_weapons['values'] = weapons
         # Connect the button click events to the movement methods in the SuperAdventure class
         self.north_button = tk.Button(self.control_frame, text="North", width=10, command=self.super_adventure.btnNorth_Click)
         self.north_button.grid(row=0, column=1, padx=5, pady=5)
@@ -110,37 +124,27 @@ class GameUI:
         self.lvl.set(f"Lvl: {self._player.level}")
 
     def update_buttons(self, new_location):
-        self.north_button['state'] = 'normal' if new_location.location_to_north is not None else 'disabled'
-        self.south_button['state'] = 'normal' if new_location.location_to_south is not None else 'disabled'
-        self.west_button['state'] = 'normal' if new_location.location_to_west is not None else 'disabled'
-        self.east_button['state'] = 'normal' if new_location.location_to_east is not None else 'disabled'
+        if new_location.location_to_north is not None:
+            self.north_button.config(state='normal')
+        else:
+            self.north_button.config(state='disabled')
+
+        if new_location.location_to_south is not None:
+            self.south_button.config(state='normal')
+        else:
+            self.south_button.config(state='disabled')
+
+        if new_location.location_to_west is not None:
+            self.west_button.config(state='normal')
+        else:
+            self.west_button.config(state='disabled')
+
+        if new_location.location_to_east is not None:
+            self.east_button.config(state='normal')
+        else:
+            self.east_button.config(state='disabled')
     
-    def move_to(self, new_location):
-        # Check if the player has the required items to enter the new location
-        if new_location.item_required_to_enter is not None:
-            if not self._player.has_required_item(new_location.item_required_to_enter):
-                self.top_right_text.insert(tk.END, f"You must have {new_location.item_required_to_enter.name} to enter this location.\n")
-                return
-
-        # Update the player's current location
-        self._player.current_location = new_location
-
-        # Update the state of the buttons
-        self.game_ui.update_buttons(new_location)
-
-        # Check if there's a quest at the new location
-        if new_location.quest is not None:
-            if not self._player.has_quest(new_location.quest):
-                self._player.add_quest(new_location.quest)
-                self.top_right_text.insert(tk.END, f"You receive a new quest: {new_location.quest.name}.\n")
-
-        # Check if there's a monster at the new location
-        if new_location.monster is not None:
-            self._current_monster = new_location.monster
-            self.top_right_text.insert(tk.END, f"A {self._current_monster.name} has appeared!\n")
-
-        # Update the UI
-        self.update_ui()
+    
 
     def use_weapon(self):
         # Get the currently selected weapon from the action_attack Combobox

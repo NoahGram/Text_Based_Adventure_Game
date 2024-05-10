@@ -5,5 +5,9 @@ class Location:
         self.description = description
         self.item_required_to_enter = item_required_to_enter
         self.quest_available_here = quest_available_here
-        self.monster = monster
+        self.monster_living_here = monster
+        self.location_to_north = None
+        self.location_to_south = None
+        self.location_to_east = None
+        self.location_to_west = None
 
