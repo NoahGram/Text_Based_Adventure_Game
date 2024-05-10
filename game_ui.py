@@ -111,6 +111,7 @@ class GameUI:
         self.action_potion = ttk.Combobox(self.dropdown_frame)
         self.action_potion.grid(row=3, column=1, padx=5, pady=5)
 
+        # Not needed i think :D
         # Connect the button click events to the movement methods in the SuperAdventure class
         self.north_button = tk.Button(self.control_frame, text="North", width=10, command=self.super_adventure.btnNorth_Click)
         self.north_button.grid(row=0, column=1, padx=5, pady=5)

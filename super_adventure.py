@@ -16,6 +16,7 @@ class SuperAdventure:
         self.move_to(World.location_by_id(World.LOCATION_ID_HOME))
         self._player.inventory.append(InventoryItem(World.item_by_id(World.ITEM_ID_RUSTY_SWORD), 1))
         self._player.inventory.append(InventoryItem(World.item_by_id(World.ITEM_ID_HEALING_POTION), 4))
+        self._player.inventory.append(InventoryItem(World.item_by_id(World.ITEM_ID_ADVENTURER_PASS), 1))
 
         self.lblHitPoints = self._player.current_hit_points
         self.lblGold = self._player.gold
@@ -187,7 +188,7 @@ class SuperAdventure:
                 quest_message += "To complete it, return with:\n"
                 self.game_ui.top_right_text.insert(tk.INSERT, quest_message)
                 self.game_ui.top_right_text.see(tk.END)
-                
+
                 for qci in new_location.quest_available_here.quest_completion_items:
                     quest_completion_item_message = f"{qci.quantity} {qci.details.name if qci.quantity == 1 else qci.details.name_plural}\n"
                     self.game_ui.top_right_text.insert(tk.INSERT, quest_completion_item_message)

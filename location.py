@@ -6,6 +6,7 @@ class Location:
         self.item_required_to_enter = item_required_to_enter
         self.quest_available_here = quest_available_here
         self.monster_living_here = monster
+        ## Not needed i think :D
         self.location_to_north = location_to_north
         self.location_to_south = location_to_south
         self.location_to_east = location_to_east
