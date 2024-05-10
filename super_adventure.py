@@ -7,7 +7,6 @@ from potion import Potion
 from weapon import Weapon
 from world import World
 from inventory_item import InventoryItem
-from game_ui import GameUI
 
 class SuperAdventure:
     def __init__(self):
@@ -190,7 +189,7 @@ class SuperAdventure:
                 self.game_ui.top_right_text.insert(tk.INSERT, "\n")
 
                 # Add the quest to the player's quest list
-                self._player.quests.append(self._player.quests(new_location.quest_available_here))
+                self._player.quests.append(new_location.quest_available_here)
 
         # Does the location have a monster?
         if new_location.monster_living_here is not None:
@@ -234,7 +233,7 @@ class SuperAdventure:
        # Populate the Treeview with the player's quests
         for player_quest in self._player.quests:
             quest_status = "Yes" if player_quest.is_completed else "No"
-            self.game_ui.quests_treeview.insert('', 'end', values=(player_quest.details.name, quest_status))
+            self.game_ui.quests_treeview.insert('', 'end', values=(player_quest.name, quest_status))
 
         # Refresh player's weapons combobox
         weapons = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Weapon) and inventory_item.quantity > 0]
