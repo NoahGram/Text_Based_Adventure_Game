@@ -6,6 +6,8 @@ class Quest:
         self.experience_points_reward = experience_points_reward
         self.gold_reward = gold_reward
         self.item_reward = item_reward
+        ## Possible Duplicates
         self.quest_completion = False
         self.is_completed = False
+        ##
         self.quest_completion_items = quest_completion_items

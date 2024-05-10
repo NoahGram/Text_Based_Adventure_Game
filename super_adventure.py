@@ -15,6 +15,7 @@ class SuperAdventure:
         self.game_ui = GameUI(self)
         self.move_to(World.location_by_id(World.LOCATION_ID_HOME))
         self._player.inventory.append(InventoryItem(World.item_by_id(World.ITEM_ID_RUSTY_SWORD), 1))
+        self._player.inventory.append(InventoryItem(World.item_by_id(World.ITEM_ID_HEALING_POTION), 4))
 
         self.lblHitPoints = self._player.current_hit_points
         self.lblGold = self._player.gold
@@ -70,6 +71,7 @@ class SuperAdventure:
         # Display current location name and description
         location_text = f"{new_location.name}\n{new_location.description}\n"
         self.game_ui.top_right_text.insert(tk.INSERT, location_text)
+        self.game_ui.top_right_text.see(tk.END)
 
         # Completely heal the player
         self._player.current_hit_points = self._player.maximum_hit_points
@@ -131,10 +133,12 @@ class SuperAdventure:
                         # Display quest completion message
                         quest_completion_message = f"\nYou complete the '{new_location.quest_available_here.name}' quest.\n"
                         self.game_ui.top_right_text.insert(tk.INSERT, quest_completion_message)
+                        self.game_ui.top_right_text.see(tk.END)
 
                         # Display current location name and description
                         location_text = f"{new_location.name}\n{new_location.description}\n"
                         self.game_ui.top_right_text.insert(tk.INSERT, location_text)
+                        self.game_ui.top_right_text.see(tk.END)
 
                         # Remove quest items from inventory
                         for qci in new_location.quest_available_here.quest_completion_items:
@@ -182,11 +186,13 @@ class SuperAdventure:
                 quest_message += f"{new_location.quest_available_here.description}\n"
                 quest_message += "To complete it, return with:\n"
                 self.game_ui.top_right_text.insert(tk.INSERT, quest_message)
-
+                self.game_ui.top_right_text.see(tk.END)
+                
                 for qci in new_location.quest_available_here.quest_completion_items:
                     quest_completion_item_message = f"{qci.quantity} {qci.details.name if qci.quantity == 1 else qci.details.name_plural}\n"
                     self.game_ui.top_right_text.insert(tk.INSERT, quest_completion_item_message)
                 self.game_ui.top_right_text.insert(tk.INSERT, "\n")
+                self.game_ui.top_right_text.see(tk.END)
 
                 # Add the quest to the player's quest list
                 self._player.quests.append(new_location.quest_available_here)
@@ -195,6 +201,7 @@ class SuperAdventure:
         if new_location.monster_living_here is not None:
             monster_message = f"You see a {new_location.monster_living_here.name}\n"
             self.game_ui.top_right_text.insert(tk.INSERT, monster_message)
+            self.game_ui.top_right_text.see(tk.END)
 
             # Make a new monster, using the values from the standard monster in the World.Monster list
             standard_monster = World.monster_by_id(new_location.monster_living_here.id)
