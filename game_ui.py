@@ -37,13 +37,29 @@ class GameUI:
         self.top_right_text = scrolledtext.ScrolledText(self.root, width=40, height=10, wrap=tk.WORD)
         self.top_right_text.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
-        # Middle right rich-text box
-        self.middle_right_text = scrolledtext.ScrolledText(self.root, width=40, height=20, wrap=tk.WORD)
-        self.middle_right_text.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        # Middle right Treeview for inventory
+        self.inventory_treeview = ttk.Treeview(self.root, columns=('Name', 'Quantity'), show='headings')
 
-        # Lower right rich-text box for quests
-        self.lower_right_text_quests = scrolledtext.ScrolledText(self.root, width=40, height=30, wrap=tk.WORD)
-        self.lower_right_text_quests.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
+        # Set the column names and widths
+        self.inventory_treeview.heading('Name', text='Name')
+        self.inventory_treeview.column('Name', width=197)
+        self.inventory_treeview.heading('Quantity', text='Quantity')
+        self.inventory_treeview.column('Quantity', width=100)
+
+        # Place the Treeview widget on the grid
+        self.inventory_treeview.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+
+        # Lower right Treeview for quests
+        self.quests_treeview = ttk.Treeview(self.root, columns=('Name', 'Done?'), show='headings')
+
+        # Set the column names and widths
+        self.quests_treeview.heading('Name', text='Name')
+        self.quests_treeview.column('Name', width=197)
+        self.quests_treeview.heading('Done?', text='Done?')
+        self.quests_treeview.column('Done?', width=100)
+
+        # Place the Treeview widget on the grid
+        self.quests_treeview.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
         # Bottom left 2x2 grid
         self.bottom_left_frame = tk.Frame(self.root)
@@ -95,15 +111,6 @@ class GameUI:
         self.action_potion = ttk.Combobox(self.dropdown_frame)
         self.action_potion.grid(row=3, column=1, padx=5, pady=5)
 
-        # Create the weapons combobox
-        self.cbo_weapons = ttk.Combobox(self.dropdown_frame)
-        self.cbo_weapons.grid(column=0, row=0)
-
-        # Get the player's weapons
-        weapons = [item for item in self._player.inventory if isinstance(item, Weapon)]
-
-        # Update the weapons combobox
-        self.cbo_weapons['values'] = weapons
         # Connect the button click events to the movement methods in the SuperAdventure class
         self.north_button = tk.Button(self.control_frame, text="North", width=10, command=self.super_adventure.btnNorth_Click)
         self.north_button.grid(row=0, column=1, padx=5, pady=5)
@@ -146,39 +153,6 @@ class GameUI:
     
     
 
-    def use_weapon(self):
-        # Get the currently selected weapon from the action_attack Combobox
-        current_weapon = self.action_attack.get()
-
-        # Calculate the amount of damage to do to the monster
-        damage_to_monster = random.randint(current_weapon.minimum_damage, current_weapon.maximum_damage)
-
-        # Apply the damage to the monster's current hit points
-        self._current_monster.current_hit_points -= damage_to_monster
-
-        # Display message
-        self.top_right_text.insert(tk.END, f"You hit the {self._current_monster.name} for {damage_to_monster} points.\n")
-
-        # Check if the monster is dead
-        if self._current_monster.current_hit_points <= 0:
-            # Monster is dead
-            self.top_right_text.insert(tk.END, f"You defeated the {self._current_monster.name}.\n")
-
-            # TODO: Give player experience points for killing the monster
-
-    def use_potion(self):
-        # Get the currently selected potion from the action_potion Combobox
-        potion = self.action_potion.get()
-
-        # Increase player's current hit points, but not beyond their maximum hit points
-        self._player.current_hit_points = min(self._player.current_hit_points + potion.amount_to_heal, self._player.maximum_hit_points)
-
-        # Remove the potion from the player's inventory
-        self._player.inventory.remove(potion)
-
-        # Display message
-        self.top_right_text.insert(tk.END, f"You drink a {potion.name}.\n")
-
     def update_ui(self):
         # Update the player's stats
         self._player_stats_text.set(f"HP: {self._player.hp} XP: {self._player.xp} Level: {self._player.level}")
@@ -189,23 +163,7 @@ class GameUI:
             self.inventory_list.insert(tk.END, item)
 
         # Update the player's location
-        self.location_text.set(self._player.location)
-
-    def north_button_click(self):
-        # Move the player to the north
-        self._player.move_north()
-
-    def east_button_click(self):
-        # Move the player to the east
-        self._player.move_east()
-
-    def south_button_click(self):
-        # Move the player to the south
-        self._player.move_south()
-
-    def west_button_click(self):
-        # Move the player to the west
-        self._player.move_west()
+        self.location_text.set(self._player.current_location)
 
     def start(self):
         self.root.mainloop()

@@ -187,30 +187,30 @@ class World:
             World.monster_by_id(World.MONSTER_ID_GIANT_SPIDER)
         )
 
-        home.LocationToNorth = townSquare
+        home.location_to_north = townSquare
 
-        townSquare.LocationToNorth = alchemistHut
-        townSquare.LocationToSouth = home
-        townSquare.LocationToEast = guardPost
-        townSquare.LocationToWest = farmhouse
+        townSquare.location_to_north = alchemistHut
+        townSquare.location_to_south = home
+        townSquare.location_to_east = guardPost
+        townSquare.location_to_west = farmhouse
 
-        farmhouse.LocationToEast = townSquare
-        farmhouse.LocationToWest = farmersField
+        farmhouse.location_to_east = townSquare
+        farmhouse.location_to_west = farmersField
 
-        farmersField.LocationToEast = farmhouse
+        farmersField.location_to_east = farmhouse
 
-        alchemistHut.LocationToSouth = townSquare
-        alchemistHut.LocationToNorth = alchemistsGarden
+        alchemistHut.location_to_south = townSquare
+        alchemistHut.location_to_north = alchemistsGarden
 
-        alchemistsGarden.LocationToSouth = alchemistHut
+        alchemistsGarden.location_to_south = alchemistHut
 
-        guardPost.LocationToEast = bridge
-        guardPost.LocationToWest = townSquare
+        guardPost.location_to_east = bridge
+        guardPost.location_to_west = townSquare
 
-        bridge.LocationToWest = guardPost
-        bridge.LocationToEast = spiderField
+        bridge.location_to_west = guardPost
+        bridge.location_to_east = spiderField
 
-        spiderField.LocationToWest = bridge
+        spiderField.location_to_west = bridge
 
         World.Locations.append(home)
         World.Locations.append(townSquare)

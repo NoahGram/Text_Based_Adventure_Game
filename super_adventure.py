@@ -34,6 +34,12 @@ class SuperAdventure:
     def btnWest_Click(self):
         self.move_to(self._player.current_location.location_to_west)
 
+    def btn_use_weapon_click(self, sender, e):
+        pass
+
+    def btn_use_potion_click(self, sender, e):
+        pass
+
     
     def move_to(self, new_location):
         # Does the location have any required items
@@ -57,10 +63,10 @@ class SuperAdventure:
         self._player.current_location = new_location
 
         # Show/hide available movement buttons
-        self.btn_north.visible = (new_location.location_to_north is not None)
-        self.btn_east.visible = (new_location.location_to_east is not None)
-        self.btn_south.visible = (new_location.location_to_south is not None)
-        self.btn_west.visible = (new_location.location_to_west is not None)
+        #self.btn_north.visible = (new_location.location_to_north is not None)
+        #self.btn_east.visible = (new_location.location_to_east is not None)
+        #self.btn_south.visible = (new_location.location_to_south is not None)
+        #self.btn_west.visible = (new_location.location_to_west is not None)
 
         # Display current location name and description
         location_text = f"{new_location.name}\n{new_location.description}\n"
@@ -140,9 +146,7 @@ class SuperAdventure:
                                     break
 
                         # Give quest rewards
-                        self.rtb_messages += f"You receive:\n{new_location.quest_available_here.reward_experience_points} 
-                                                experience points\n{new_location.quest_available_here.reward_gold} 
-                                                gold\n{new_location.quest_available_here.reward_item.name}\n\n"
+                        self.rtb_messages += f"You receive:\n{new_location.quest_available_here.reward_experience_points} experience points\n{new_location.quest_available_here.reward_gold} gold\n{new_location.quest_available_here.reward_item.name}\n\n"
 
                         self._player.experiencePoints += new_location.quest_available_here.reward_experience_points
                         self._player.gold += new_location.quest_available_here.reward_gold
@@ -192,6 +196,7 @@ class SuperAdventure:
         if new_location.monster_living_here is not None:
             monster_message = f"You see a {new_location.monster_living_here.name}\n"
             self.game_ui.top_right_text.insert(tk.INSERT, monster_message)
+
             # Make a new monster, using the values from the standard monster in the World.Monster list
             standard_monster = World.monster_by_id(new_location.monster_living_here.id)
 
@@ -201,84 +206,74 @@ class SuperAdventure:
             for loot_item in standard_monster.loot_table:
                 self._current_monster.loot_table.append(loot_item)
 
-            self.cbo_weapons.visible = True
-            self.cbo_potions.visible = True
-            self.btn_use_weapon.visible = True
-            self.btn_use_potion.visible = True
+            # Make the dropdowns and buttons visible
+            self.game_ui.action_attack.grid()
+            self.game_ui.use_attack.grid()
+            self.game_ui.action_potion.grid()
+            self.game_ui.use_potion.grid()
         else:
             self._current_monster = None
 
-            self.cbo_weapons.visible = False
-            self.cbo_potions.visible = False
-            self.btn_use_weapon.visible = False
-            self.btn_use_potion.visible = False
+            # Make the dropdowns and buttons invisible
+            self.game_ui.action_attack.grid_remove()
+            self.game_ui.use_attack.grid_remove()
+            self.game_ui.action_potion.grid_remove()
+            self.game_ui.use_potion.grid_remove()
 
         # Refresh player's inventory list
-        self.dgv_inventory.rows = []
+        self.game_ui.inventory_treeview.delete(*self.game_ui.inventory_treeview.get_children())
 
+        # Populate the Treeview with the player's inventory
         for inventory_item in self._player.inventory:
             if inventory_item.quantity > 0:
-                self.dgv_inventory.rows.append([inventory_item.details.name, inventory_item.quantity])
+                self.game_ui.inventory_treeview.insert('', 'end', values=(inventory_item.details.name, inventory_item.quantity))
 
         # Refresh player's quest list
-        self.dgv_quests.rows = []
+        self.game_ui.quests_treeview.delete(*self.game_ui.quests_treeview.get_children())
 
+       # Populate the Treeview with the player's quests
         for player_quest in self._player.quests:
-            self.dgv_quests.rows.append([player_quest.details.name, player_quest.is_completed])
+            quest_status = "Yes" if player_quest.is_completed else "No"
+            self.game_ui.quests_treeview.insert('', 'end', values=(player_quest.details.name, quest_status))
 
         # Refresh player's weapons combobox
         weapons = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Weapon) and inventory_item.quantity > 0]
 
         if len(weapons) == 0:
             # The player doesn't have any weapons, so hide the weapon combobox and "Use" button
-            self.cbo_weapons.visible = False
-            self.btn_use_weapon.visible = False
+            self.game_ui.action_attack.state(['disabled'])
+            self.game_ui.use_attack.config(state='disabled')
         else:
-            self.cbo_weapons.data_source = weapons
-            self.cbo_weapons.display_member = "Name"
-            self.cbo_weapons.value_member = "ID"
+            # Clear the Combobox
+            self.game_ui.action_attack.set('')
+            self.game_ui.action_attack['values'] = [weapon.name for weapon in weapons]
 
-            self.cbo_weapons.selected_index = 0
+            # Select the first weapon in the list
+            self.game_ui.action_attack.current(0)
+
+            # Enable the Combobox and "Use" button
+            self.game_ui.action_attack.state(['!disabled'])
+            self.game_ui.use_attack.config(state='!disabled')
 
         # Refresh player's potions combobox
-        healing_potions = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Potion) and inventory_item.quantity > 0]
+        potions = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Potion) and inventory_item.quantity > 0]
 
-        if len(healing_potions) == 0:
+        if len(potions) == 0:
             # The player doesn't have any potions, so hide the potion combobox and "Use" button
-            self.cbo_potions.visible = False
-            self.btn_use_potion.visible = False
+            self.game_ui.action_potion.state(['disabled'])
+            self.game_ui.use_potion.config(state='disabled')
         else:
-            self.cbo_potions.data_source = healing_potions
-            self.cbo_potions.display_member = "Name"
-            self.cbo_potions.value_member = "ID"
+            # Clear the Combobox
+            self.game_ui.action_potion.set('')
+            self.game_ui.action_potion['values'] = [potion.name for potion in potions]
 
-            self.cbo_potions.selected_index = 0
+            # Select the first potion in the list
+            self.game_ui.action_potion.current(0)
 
+            # Enable the Combobox and "Use" button
+            self.game_ui.action_potion.state(['!disabled'])
+            self.game_ui.use_potion.config(state='!disabled')
 
-    def update_inventory(self):
-        # Clear the middle_right_text widget
-        self.game_ui.middle_right_text.delete('1.0', tk.END)
-
-        # Update the player's inventory in the middle_right_text widget
-        self.game_ui.middle_right_text.insert(tk.END, "Inventory:\n")
-        for inventory_item in self._player.inventory:
-            if inventory_item.quantity > 0:
-                self.game_ui.middle_right_text.insert(tk.END, f"{inventory_item.details.name}: {inventory_item.quantity}\n")
-
-    def update_quests(self):
-            # Clear the lower_right_text_quests widget
-            self.game_ui.lower_right_text_quests.delete('1.0', tk.END)
-
-            # Update the player's quests in the lower_right_text_quests widget
-            self.game_ui.lower_right_text_quests.insert(tk.END, "Quests:\n")
-            for player_quest in self._player.quests:
-                self.game_ui.lower_right_text_quests.insert(tk.END, f"{player_quest.details.name}: {'Done' if player_quest.is_completed else 'Not Done'}\n")
-
-    def btn_use_weapon_click(self, sender, e):
-        pass
-
-    def btn_use_potion_click(self, sender, e):
-        pass
 
     def increase_health(self):
         self._player.current_hit_points += 1
