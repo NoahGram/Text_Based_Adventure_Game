@@ -171,83 +171,88 @@ class SuperAdventure:
                                     pq.is_completed = True
                                     break
 
-                            # The player does not already have the quest
-                            # Display the messages
-                            self.rtb_messages += f"You receive the {new_location.quest_available_here.name} quest.\n"
-                            self.rtb_messages += f"{new_location.quest_available_here.description}\n"
-                            self.rtb_messages += "To complete it, return with:\n"
-                            for qci in new_location.quest_available_here.quest_completion_items:
-                                self.rtb_messages += f"{qci.quantity} {qci.details.name if qci.quantity == 1 else qci.details.name_plural}\n"
-                            self.rtb_messages += "\n"
+            #Missing Else statement
+            else:
+                # The player does not already have the quest
+                # Display quest the messages
+                quest_message = f"You receive the {new_location.quest_available_here.name} quest.\n"
+                quest_message += f"{new_location.quest_available_here.description}\n"
+                quest_message += "To complete it, return with:\n"
+                self.game_ui.top_right_text.insert(tk.INSERT, quest_message)
 
-                            # Add the quest to the player's quest list
-                            self._player.quests.append(PlayerQuest(new_location.quest_available_here))
+                for qci in new_location.quest_available_here.quest_completion_items:
+                    quest_completion_item_message = f"{qci.quantity} {qci.details.name if qci.quantity == 1 else qci.details.name_plural}\n"
+                    self.game_ui.top_right_text.insert(tk.INSERT, quest_completion_item_message)
+                self.game_ui.top_right_text.insert(tk.INSERT, "\n")
 
-                            # Does the location have a monster?
-                            if new_location.monster_living_here is not None:
-                                self.rtb_messages += f"You see a {new_location.monster_living_here.name}\n"
+                # Add the quest to the player's quest list
+                self._player.quests.append(self._player.quests(new_location.quest_available_here))
 
-                                # Make a new monster, using the values from the standard monster in the World.Monster list
-                                standard_monster = World.monster_by_id(new_location.monster_living_here.id)
+        # Does the location have a monster?
+        if new_location.monster_living_here is not None:
+            monster_message = f"You see a {new_location.monster_living_here.name}\n"
+            self.game_ui.top_right_text.insert(tk.INSERT, monster_message)
+            # Make a new monster, using the values from the standard monster in the World.Monster list
+            standard_monster = World.monster_by_id(new_location.monster_living_here.id)
 
-                                self._current_monster = Monster(standard_monster.id, standard_monster.name, standard_monster.maximum_damage,
-                                                                standard_monster.reward_experience_points, standard_monster.reward_gold, standard_monster.current_hit_points, standard_monster.maximum_hit_points)
+            self._current_monster = Monster(standard_monster.id, standard_monster.name, standard_monster.maximum_damage,
+                                            standard_monster.reward_experience_points, standard_monster.reward_gold, standard_monster.current_hit_points, standard_monster.maximum_hit_points)
 
-                                for loot_item in standard_monster.loot_table:
-                                    self._current_monster.loot_table.append(loot_item)
+            for loot_item in standard_monster.loot_table:
+                self._current_monster.loot_table.append(loot_item)
 
-                                self.cbo_weapons.visible = True
-                                self.cbo_potions.visible = True
-                                self.btn_use_weapon.visible = True
-                                self.btn_use_potion.visible = True
-                            else:
-                                self._current_monster = None
+            self.cbo_weapons.visible = True
+            self.cbo_potions.visible = True
+            self.btn_use_weapon.visible = True
+            self.btn_use_potion.visible = True
+        else:
+            self._current_monster = None
 
-                                self.cbo_weapons.visible = False
-                                self.cbo_potions.visible = False
-                                self.btn_use_weapon.visible = False
-                                self.btn_use_potion.visible = False
+            self.cbo_weapons.visible = False
+            self.cbo_potions.visible = False
+            self.btn_use_weapon.visible = False
+            self.btn_use_potion.visible = False
 
-                            # Refresh player's inventory list
-                            self.dgv_inventory.rows = []
+        # Refresh player's inventory list
+        self.dgv_inventory.rows = []
 
-                            for inventory_item in self._player.inventory:
-                                if inventory_item.quantity > 0:
-                                    self.dgv_inventory.rows.append([inventory_item.details.name, inventory_item.quantity])
+        for inventory_item in self._player.inventory:
+            if inventory_item.quantity > 0:
+                self.dgv_inventory.rows.append([inventory_item.details.name, inventory_item.quantity])
 
-                            # Refresh player's quest list
-                            self.dgv_quests.rows = []
+        # Refresh player's quest list
+        self.dgv_quests.rows = []
 
-                            for player_quest in self._player.quests:
-                                self.dgv_quests.rows.append([player_quest.details.name, player_quest.is_completed])
+        for player_quest in self._player.quests:
+            self.dgv_quests.rows.append([player_quest.details.name, player_quest.is_completed])
 
-                            # Refresh player's weapons combobox
-                            weapons = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Weapon) and inventory_item.quantity > 0]
+        # Refresh player's weapons combobox
+        weapons = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Weapon) and inventory_item.quantity > 0]
 
-                            if len(weapons) == 0:
-                                # The player doesn't have any weapons, so hide the weapon combobox and "Use" button
-                                self.cbo_weapons.visible = False
-                                self.btn_use_weapon.visible = False
-                            else:
-                                self.cbo_weapons.data_source = weapons
-                                self.cbo_weapons.display_member = "Name"
-                                self.cbo_weapons.value_member = "ID"
+        if len(weapons) == 0:
+            # The player doesn't have any weapons, so hide the weapon combobox and "Use" button
+            self.cbo_weapons.visible = False
+            self.btn_use_weapon.visible = False
+        else:
+            self.cbo_weapons.data_source = weapons
+            self.cbo_weapons.display_member = "Name"
+            self.cbo_weapons.value_member = "ID"
 
-                                self.cbo_weapons.selected_index = 0
+            self.cbo_weapons.selected_index = 0
 
-                            # Refresh player's potions combobox
-                            healing_potions = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Potion) and inventory_item.quantity > 0]
+        # Refresh player's potions combobox
+        healing_potions = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Potion) and inventory_item.quantity > 0]
 
-                            if len(healing_potions) == 0:
-                                # The player doesn't have any potions, so hide the potion combobox and "Use" button
-                                self.cbo_potions.visible = False
-                                self.btn_use_potion.visible = False
-                            else:
-                                self.cbo_potions.data_source = healing_potions
-                                self.cbo_potions.display_member = "Name"
-                                self.cbo_potions.value_member = "ID"
+        if len(healing_potions) == 0:
+            # The player doesn't have any potions, so hide the potion combobox and "Use" button
+            self.cbo_potions.visible = False
+            self.btn_use_potion.visible = False
+        else:
+            self.cbo_potions.data_source = healing_potions
+            self.cbo_potions.display_member = "Name"
+            self.cbo_potions.value_member = "ID"
 
-                                self.cbo_potions.selected_index = 0
+            self.cbo_potions.selected_index = 0
 
 
     def update_inventory(self):
