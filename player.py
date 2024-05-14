@@ -12,5 +12,13 @@ class Player(Creature):
         self.quests = []
         self.current_location = World.location_by_id(World.LOCATION_ID_HOME)
         
-    def add_item_to_inventory(self, item):
-        self.inventory.append(item)
+    def add_item_to_inventory(self, item_to_add):
+        # Check if item already exists in inventory
+        for inventory_item in self.inventory:
+            if inventory_item.details == item_to_add.details:
+                # Item exists, increase quantity
+                inventory_item.quantity += item_to_add.quantity
+                break
+        else:
+            # Item doesn't exist, add to inventory
+            self.inventory.append(item_to_add)
