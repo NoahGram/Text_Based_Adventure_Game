@@ -58,7 +58,7 @@ class SuperAdventure:
 
             if not player_has_required_item:
                 # We didn't find the required item in their inventory, so display a message and stop trying to move
-                self.rtb_messages += f"You must have a {new_location.item_required_to_enter.name} to enter this location.\n"
+                self.game_ui.top_right_text.insert('end', f"You receive:\n{new_location.quest_available_here.experience_points_reward} experience points\n{new_location.quest_available_here.gold_reward} gold\n{new_location.quest_available_here.item_reward.name}\n\n")
                 return
 
         # Update the player's current location
@@ -88,11 +88,10 @@ class SuperAdventure:
             player_already_completed_quest = False
 
             for player_quest in self._player.quests:
-                #!!!!!!!!!!!!!!!!!!!!!
-                if player_quest.details.id == new_location.quest_available_here.id:
+                if player_quest.id == new_location.quest_available_here.id:
                     player_already_has_quest = True
 
-                    if player_quest.quest_completed:
+                    if player_quest.quest_completion:
                         player_already_completed_quest = True
 
             # See if the player already has the quest
@@ -151,16 +150,16 @@ class SuperAdventure:
                                     break
 
                         # Give quest rewards
-                        self.rtb_messages += f"You receive:\n{new_location.quest_available_here.reward_experience_points} experience points\n{new_location.quest_available_here.reward_gold} gold\n{new_location.quest_available_here.reward_item.name}\n\n"
+                        self.game_ui.top_right_text.insert('end', f"You receive:\n{new_location.quest_available_here.experience_points_reward} experience points\n{new_location.quest_available_here.gold_reward} gold\n{new_location.quest_available_here.item_reward.name}\n\n")
 
-                        self._player.reward_experience_points += new_location.quest_available_here.reward_experience_points
-                        self._player.gold += new_location.quest_available_here.reward_gold
+                        self._player.experience_points += new_location.quest_available_here.experience_points_reward
+                        self._player.gold += new_location.quest_available_here.gold_reward
 
                         # Add the reward item to the player's inventory
                         added_item_to_player_inventory = False
 
                         for ii in self._player.inventory:
-                            if ii.details.id == new_location.quest_available_here.reward_item.id:
+                            if ii.details.id == new_location.quest_available_here.item_reward.id:
                                 # They have the item in their inventory, so increase the quantity by one
                                 ii.quantity += 1
 
@@ -170,12 +169,12 @@ class SuperAdventure:
 
                             # They didn't have the item, so add it to their inventory, with a quantity of 1
                             if not added_item_to_player_inventory:
-                                self._player.inventory.append(InventoryItem(new_location.quest_available_here.reward_item, 1))
+                                self._player.inventory.append(InventoryItem(new_location.quest_available_here.item_reward, 1))
 
                             # Mark the quest as completed
                             # Find the quest in the player's quest list
                             for pq in self._player.quests:
-                                if pq.details.id == new_location.quest_available_here.id:
+                                if pq.id == new_location.quest_available_here.id:  # Changed this line
                                     # Mark it as completed
                                     pq.is_completed = True
                                     break
@@ -209,7 +208,7 @@ class SuperAdventure:
             standard_monster = World.monster_by_id(new_location.monster_living_here.id)
 
             self._current_monster = Monster(standard_monster.id, standard_monster.name, standard_monster.maximum_damage,
-                                            standard_monster.reward_experience_points, standard_monster.reward_gold, standard_monster.current_hit_points, standard_monster.maximum_hit_points)
+                                            standard_monster.experience_points_reward, standard_monster.gold_reward, standard_monster.current_hit_points, standard_monster.maximum_hit_points)
 
             for loot_item in standard_monster.loot_table:
                 self._current_monster.loot_table.append(loot_item)
@@ -305,11 +304,11 @@ class SuperAdventure:
             self.game_ui.top_right_text.insert('end', "\n")
             self.game_ui.top_right_text.insert('end', f"You defeated the {self._current_monster.name}\n")
             # Give player experience points for killing the monster
-            self._player.experience_points += self._current_monster.reward_experience_points
-            self.game_ui.top_right_text.insert('end', f"You receive {self._current_monster.reward_experience_points} experience points\n")
+            self._player.experience_points += self._current_monster.experience_points_reward
+            self.game_ui.top_right_text.insert('end', f"You receive {self._current_monster.experience_points_reward} experience points\n")
             # Give player gold for killing the monster 
-            self._player.gold += self._current_monster.reward_gold
-            self.game_ui.top_right_text.insert('end', f"You receive {self._current_monster.reward_gold} gold\n")
+            self._player.gold += self._current_monster.gold_reward
+            self.game_ui.top_right_text.insert('end', f"You receive {self._current_monster.gold_reward} gold\n")
             # Get random loot items from the monster
             looted_items = []
             # Add items to the lootedItems list, comparing a random number to the drop percentage
