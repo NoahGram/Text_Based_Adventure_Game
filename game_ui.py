@@ -99,7 +99,7 @@ class GameUI:
         self.action_label = tk.Label(self.dropdown_frame, text="Select Action", font=("Arial", 10))
         self.action_label.grid(row=0, column=0, padx=5, pady=5, columnspan=2)
 
-        self.use_attack = tk.Button(self.dropdown_frame, text="Use", width=10)
+        self.use_attack = tk.Button(self.dropdown_frame, text="Use", width=10, command=self.super_adventure.btn_use_weapon_click)
         self.use_attack.grid(row=1, column=0, padx=5, pady=5)
 
         self.action_attack = ttk.Combobox(self.dropdown_frame)
@@ -128,7 +128,7 @@ class GameUI:
     def update_stats(self):
         self.health.set(f"Health: {self._player.current_hit_points}")
         self.gold.set(f"Gold: {self._player.gold}")
-        self.experience.set(f"Exp: {self._player.experiencePoints}")
+        self.experience.set(f"Exp: {self._player.experience_points}")
         self.lvl.set(f"Lvl: {self._player.level}")
 
     def update_buttons(self, new_location):

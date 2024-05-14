@@ -1,4 +1,5 @@
 # SuperAdventure.py
+import random
 import tkinter as tk
 from game_ui import GameUI
 from monster import Monster
@@ -20,7 +21,7 @@ class SuperAdventure:
 
         self.lblHitPoints = self._player.current_hit_points
         self.lblGold = self._player.gold
-        self.lblExperience = self._player.experiencePoints
+        self.lblExperience = self._player.experience_points
         self.lblLevel = self._player.level
 
     def btnNorth_Click(self):
@@ -152,7 +153,7 @@ class SuperAdventure:
                         # Give quest rewards
                         self.rtb_messages += f"You receive:\n{new_location.quest_available_here.reward_experience_points} experience points\n{new_location.quest_available_here.reward_gold} gold\n{new_location.quest_available_here.reward_item.name}\n\n"
 
-                        self._player.experiencePoints += new_location.quest_available_here.reward_experience_points
+                        self._player.reward_experience_points += new_location.quest_available_here.reward_experience_points
                         self._player.gold += new_location.quest_available_here.reward_gold
 
                         # Add the reward item to the player's inventory
@@ -248,8 +249,8 @@ class SuperAdventure:
 
         if len(weapons) == 0:
             # The player doesn't have any weapons, so hide the weapon combobox and "Use" button
-            self.game_ui.action_attack.state(['disabled'])
-            self.game_ui.use_attack.config(state='disabled')
+            self.game_ui.action_attack.state(['active'])
+            self.game_ui.use_attack.config(state='active')
         else:
             # Clear the Combobox
             self.game_ui.action_attack.set('')
@@ -259,16 +260,16 @@ class SuperAdventure:
             self.game_ui.action_attack.current(0)
 
             # Enable the Combobox and "Use" button
-            self.game_ui.action_attack.state(['!disabled'])
-            self.game_ui.use_attack.config(state='!disabled')
+            self.game_ui.action_attack.state(['active'])
+            self.game_ui.use_attack.config(state='active')
 
         # Refresh player's potions combobox
         potions = [inventory_item.details for inventory_item in self._player.inventory if isinstance(inventory_item.details, Potion) and inventory_item.quantity > 0]
 
         if len(potions) == 0:
             # The player doesn't have any potions, so hide the potion combobox and "Use" button
-            self.game_ui.action_potion.state(['disabled'])
-            self.game_ui.use_potion.config(state='disabled')
+            self.game_ui.action_potion.state(['active'])
+            self.game_ui.use_potion.config(state='active')
         else:
             # Clear the Combobox
             self.game_ui.action_potion.set('')
@@ -278,9 +279,79 @@ class SuperAdventure:
             self.game_ui.action_potion.current(0)
 
             # Enable the Combobox and "Use" button
-            self.game_ui.action_potion.state(['!disabled'])
-            self.game_ui.use_potion.config(state='!disabled')
+            self.game_ui.action_potion.state(['active'])
+            self.game_ui.use_potion.config(state='active')
 
+
+
+    def btn_use_weapon_click(self):
+        # Get the currently selected weapon name from the cboWeapons ComboBox
+        current_weapon_name = self.game_ui.action_attack.get()
+
+        # Find the weapon object that corresponds to the selected name
+        current_weapon = next((item.details for item in self._player.inventory if isinstance(item.details, Weapon) and item.details.name == current_weapon_name), None)
+
+        if current_weapon is not None:
+            # Determine the amount of damage to do to the monster
+            damage_to_monster = random.randint(current_weapon.minimum_damage, current_weapon.maximum_damage)
+            # Apply the damage to the monster's current_hit_points
+            self._current_monster.current_hit_points -= damage_to_monster
+            # Display message
+            self.game_ui.top_right_text.insert('end', f"You hit the {self._current_monster.name} for {damage_to_monster} points.\n")
+                
+        # Check if the monster is dead
+        if self._current_monster.current_hit_points <= 0:
+            # Monster is dead
+            self.game_ui.top_right_text.insert('end', "\n")
+            self.game_ui.top_right_text.insert('end', f"You defeated the {self._current_monster.name}\n")
+            # Give player experience points for killing the monster
+            self._player.experience_points += self._current_monster.reward_experience_points
+            self.game_ui.top_right_text.insert('end', f"You receive {self._current_monster.reward_experience_points} experience points\n")
+            # Give player gold for killing the monster 
+            self._player.gold += self._current_monster.reward_gold
+            self.game_ui.top_right_text.insert('end', f"You receive {self._current_monster.reward_gold} gold\n")
+            # Get random loot items from the monster
+            looted_items = []
+            # Add items to the lootedItems list, comparing a random number to the drop percentage
+            for loot_item in self._current_monster.loot_table:
+                if random.randint(1, 100) <= loot_item.drop_rate:
+                    looted_items.append(InventoryItem(loot_item.details, 1))
+            # If no items were randomly selected, then add the default loot item(s).
+            if len(looted_items) == 0:
+                for loot_item in self._current_monster.loot_table:
+                    if loot_item.is_default_item:
+                        looted_items.append(InventoryItem(loot_item.details, 1))
+            # Add the looted items to the player's inventory
+            for inventory_item in looted_items:
+                self._player.add_item_to_inventory(inventory_item)  # Changed this line
+                if inventory_item.quantity == 1:
+                    self.game_ui.top_right_text.insert('end', f"You loot {inventory_item.quantity} {inventory_item.details.name}\n")
+                else:
+                    self.game_ui.top_right_text.insert('end', f"You loot {inventory_item.quantity} {inventory_item.details.name_plural}\n")
+            # Refresh player information and inventory controls
+            self.game_ui.update_stats()
+            #self.update_inventory_list_in_ui()
+            #self.update_weapon_list_in_ui()
+            #self.update_potion_list_in_ui()
+            # Add a blank line to the messages box, just for appearance.
+            self.game_ui.top_right_text.insert('end', "\n")
+            # Move player to current location (to heal player and create a new monster to fight)
+            self.move_to(self._player.current_location)
+        else:
+            # Monster is still alive
+            # Determine the amount of damage the monster does to the player
+            damage_to_player = random.randint(0, self._current_monster.maximum_damage)
+            # Display message
+            self.game_ui.top_right_text.insert('end', f"The {self._current_monster.name} did {damage_to_player} points of damage.\n")
+            # Subtract damage from player
+            self._player.current_hit_points -= damage_to_player
+            # Refresh player data in UI
+            self.game_ui.update_stats()
+            if self._player.current_hit_points <= 0:
+                # Display message
+                self.game_ui.top_right_text.insert('end', f"The {self._current_monster.name} killed you.\n")
+                # Move player to "Home"
+                self.move_to(World.location_by_id(World.LOCATION_ID_HOME))
 
     def increase_health(self):
         self._player.current_hit_points += 1
