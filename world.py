@@ -24,6 +24,7 @@ class World:
     ITEM_ID_SPIDER_SILK = 9
     ITEM_ID_ADVENTURER_PASS = 10
     ITEM_ID_LIQUID_DIVINIUM = 11
+    ITEM_ID_IRON_SWORD = 12
 
     MONSTER_ID_RAT = 1
     MONSTER_ID_SNAKE = 2
@@ -62,6 +63,7 @@ class World:
         World.Items.append(Item(World.ITEM_ID_SPIDER_SILK, "Spider silk", "Spider silks"))
         World.Items.append(Item(World.ITEM_ID_ADVENTURER_PASS, "Adventurer pass", "Adventurer passes"))
         World.Items.append(Potion(World.ITEM_ID_LIQUID_DIVINIUM, "Liquid Divinium", "Liquid Diviniums", 50))
+        World.Items.append(Weapon(World.ITEM_ID_IRON_SWORD, "Iron sword", "Iron swords", 10, 20))
 
     @staticmethod
     def populate_monsters():
