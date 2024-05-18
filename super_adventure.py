@@ -354,10 +354,27 @@ class SuperAdventure:
                 self.move_to(World.location_by_id(World.LOCATION_ID_HOME))
 
 
-    def btnUsePotion_Click(self):
-        # Get the currently selected potion from the combobox
-        potion = self.game_ui.action_potion.get()  # Assuming cboPotions is a tkinter Combobox
+    import random  # Ensure random is imported for monster damage calculation
 
+    def btn_use_potion_click(self):
+        self.game_ui.top_right_text.insert('end', f"The Wigger killed you.\n")
+        
+        # Get the currently selected potion name from the combobox
+        potion_name = self.game_ui.action_potion.get()
+
+        # Find the Potion object in the player's inventory
+        potion_inventory_item = next((item for item in self._player.inventory 
+                                    if isinstance(item.details, Potion) and item.details.name == potion_name), None)
+
+        if potion_inventory_item is None:
+            # No potion found in the inventory
+            self.game_ui.top_right_text.insert('end', "You don't have this potion.\n")
+            return
+
+        potion = potion_inventory_item.details
+        
+        self.game_ui.top_right_text.insert('end', f"The Wigger 2 killed you.\n")
+        
         # Add healing amount to the player's current hit points
         self._player.current_hit_points += potion.amount_to_heal
 
@@ -365,37 +382,41 @@ class SuperAdventure:
         if self._player.current_hit_points > self._player.maximum_hit_points:
             self._player.current_hit_points = self._player.maximum_hit_points
 
+        self.game_ui.top_right_text.insert('end', f"The Wigger 3 killed you.\n")
+        
         # Remove the potion from the player's inventory
-        for ii in self._player.inventory:
-            if ii.Details.id == potion.id:
-                ii.Quantity -= 1
-                break
+        potion_inventory_item.quantity -= 1
+        if potion_inventory_item.quantity <= 0:
+            self._player.inventory.remove(potion_inventory_item)
 
+        self.game_ui.top_right_text.insert('end', f"The Wigger 4 killed you.\n")
+        
         # Display message
-        self.top_right_text.insert('end', f"You drink a {potion.Name}\n")
+        self.game_ui.top_right_text.insert('end', f"You drink a {potion.name} and heal for {potion.amount_to_heal} hit points.\n")
 
         # Monster gets their turn to attack
         # Determine the amount of damage the monster does to the player
-        damageToPlayer = random.randint(0, self._currentMonster.MaximumDamage)
+        damage_to_player = random.randint(0, self._current_monster.maximum_damage)
 
         # Display message
-        self.top_right_text.insert('end', f"The {self._currentMonster.Name} did {damageToPlayer} points of damage.\n")
+        self.game_ui.top_right_text.insert('end', f"The {self._current_monster.name} did {damage_to_player} points of damage.\n")
 
         # Subtract damage from player
-        self._player.CurrentHitPoints -= damageToPlayer
+        self._player.current_hit_points -= damage_to_player
 
-        if self._player.CurrentHitPoints <= 0:
+        if self._player.current_hit_points <= 0:
             # Display message
-            self.top_right_text.insert('end', f"The {self._currentMonster.Name} killed you.\n")
+            self.game_ui.top_right_text.insert('end', f"The {self._current_monster.name} killed you.\n")
 
             # Move player to "Home"
             self.MoveTo(World.LocationByID(World.LOCATION_ID_HOME))  # Assuming MoveTo is a method in your class
 
         # Refresh player data in UI
-        self.lblHitPoints['text'] = str(self._player.CurrentHitPoints)  # Assuming lblHitPoints is a tkinter Label
+        self.game_ui.update_stats()  # Assuming lblHitPoints is a tkinter Label
 
         #self.UpdateInventoryListInUI()  # Assuming UpdateInventoryListInUI is a method in your class
         #self.UpdatePotionListInUI()  # Assuming UpdatePotionListInUI is a method in your class
+
 
 
     def increase_health(self):
