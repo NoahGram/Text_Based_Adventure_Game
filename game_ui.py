@@ -152,8 +152,15 @@ class GameUI:
             self.east_button.config(state='normal')
         else:
             self.east_button.config(state='disabled')
-    
-    
+
+    def update_inventory(self):
+        # Clear the current inventory display
+        for row in self.inventory_treeview.get_children():
+            self.inventory_treeview.delete(row)
+
+        # Add each item in the player's inventory to the inventory display
+        for item in self._player.inventory:
+            self.inventory_treeview.insert('', 'end', values=(item.details.name, item.quantity))
 
     def update_ui(self):
         # Update the player's stats

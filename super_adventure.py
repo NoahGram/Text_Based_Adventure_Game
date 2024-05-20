@@ -330,7 +330,7 @@ class SuperAdventure:
                     self.game_ui.top_right_text.insert('end', f"You loot {inventory_item.quantity} {inventory_item.details.name_plural}\n")
             # Refresh player information and inventory controls
             self.game_ui.update_stats()
-            #self.update_inventory_list_in_ui()
+            self.game_ui.update_inventory()
             #self.update_weapon_list_in_ui()
             #self.update_potion_list_in_ui()
             # Add a blank line to the messages box, just for appearance.
@@ -413,7 +413,7 @@ class SuperAdventure:
 
         # Refresh player data in UI
         self.game_ui.update_stats()  # Assuming lblHitPoints is a tkinter Label
-
+        self.game_ui.update_inventory()  # Assuming UpdateInventoryListInUI is a method in your class
         #self.UpdateInventoryListInUI()  # Assuming UpdateInventoryListInUI is a method in your class
         #self.UpdatePotionListInUI()  # Assuming UpdatePotionListInUI is a method in your class
 
